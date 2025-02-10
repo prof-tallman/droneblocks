@@ -15,7 +15,11 @@ class Interface:
 
     def run(self):
         while self.running:
-            self.draw()
+         #Need to have an event handling loop here
+         for event in pygame.event.get():
+          if event.type == pygame.QUIT:
+           self.running = False #to actually exit the loop
+        self.draw()
 
         pygame.quit()
 
