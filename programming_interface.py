@@ -8,18 +8,30 @@ class Interface:
         pygame.init()
         self.running = True
 
-        self.SIZE = (900, 700)
+        self.SIZE = (1280, 720)
         self.screen = pygame.display.set_mode(self.SIZE)
         self.background_color = (0, 0, 50)
+
+        
+        self.blocks = [
+            Block(50,50, 'forward')
+        ]
 
 
     def run(self):
         while self.running:
-         #Need to have an event handling loop here
-         for event in pygame.event.get():
-          if event.type == pygame.QUIT:
-           self.running = False #to actually exit the loop
-        self.draw()
+            #Need to have an event handling loop here
+            for event in pygame.event.get():
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    print("MOUSE CLICKED")
+
+                if event.type == pygame.QUIT:
+                    self.running = False #to actually exit the loop
+
+
+
+            self.draw()
 
         pygame.quit()
 
@@ -27,46 +39,47 @@ class Interface:
     def draw(self):
         self.screen.fill(self.background_color)
 
-        pygame.draw.rect(self.screen, (100,100,0), pygame.Rect(30, 30, 60, 60))
-        pygame.display.flip()
+        # text_surface = self.font.render(self.text, True, self.text_color)
+        # text_rect = text_surface.get_rect(center=self.rect.center)
 
-import pygame
+        for rect in self.blocks:
+            rect.blit(self.screen)
 
-class Button:
-    def __init__(self, x, y, width, height, color, hover_color, text, font, text_color, action=None):
-        """
-        Below is a quick explanation for the pygame.Rect() button class, 
-        param x: x position of the button
-        param y: y position of the button
-        param width: width of the button
-        param height: height of the button
-        param color: color of the button
-        param hover_color: color of the button when hovered
-        param text: text to display on the button
-        param font: font of the text
-        param text_color: color of the text
-        param action: function to call when the button is clicked
+        pygame.display.update()
+        # pygame.display.flip()
 
 
-        """
-        self.rect = pygame.Rect(x, y, width, height)
-        self.color = color
-        self.hover_color = hover_color
-        self.text = text
-        self.font = font
-        self.text_color = text_color
+
+
+class Block:
+    def __init__(self, x, y, action):
+        
+        # Below is a quick explanation for the pygame.Rect() button class, 
+        # param x: x position of the button
+        # param y: y position of the button
+        # param width: width of the button
+        # param height: height of the button
+        # param color: color of the button
+        # param hover_color: color of the button when hovered
+        # param text: text to display on the button
+        # param font: font of the text
+        # param text_color: color of the text
+        # param action: function to call when the button is clicked
+        color = (255,255,255)
+
+        self.width, self.height = 100, 50
+
+        self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)  # Enables transparency
+        self.surface.fill(color)  # Fill the rectangle with green
+
         self.action = action
-        self.hovered = False
 
-    def draw(self, screen):
-        # Some basic highlighting courtesy of the quarto project
-        color = self.hover_color if self.hovered else self.color
-        pygame.draw.rect(screen, color, self.rect, border_radius=5)
+        self.x = x
+        self.y = y
 
-        # Pygame includes a font module (pygame.font) to help render text for labels
-        text_surface = self.font.render(self.text, True, self.text_color)
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        screen.blit(text_surface, text_rect)
+
+    def blit(self, screen):
+        screen.blit(self.surface, (self.x, self.y))
 
     #The rect.collidepoint() method is used to check if a point is inside a rectangle, can use it for highlighting detection
     def check_hover(self, mouse_pos):
@@ -74,6 +87,7 @@ class Button:
 
     def check_click(self, mouse_pos):
         if self.rect.collidepoint(mouse_pos) and self.action:
+            print(f"{self.action} clicked")
             self.action()  # Call the action function if the button was clicked
 
 
