@@ -30,8 +30,6 @@ class Interface:
         pygame.draw.rect(self.screen, (100,100,0), pygame.Rect(30, 30, 60, 60))
         pygame.display.flip()
 
-import pygame
-
 class Button:
     def __init__(self, x, y, width, height, color, hover_color, text, font, text_color, action=None):
         """
