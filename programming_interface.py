@@ -42,28 +42,11 @@ class Interface:
         # text_surface = self.font.render(self.text, True, self.text_color)
         # text_rect = text_surface.get_rect(center=self.rect.center)
 
-<<<<<<< HEAD
-class Button:
-    def __init__(self, x, y, width, height, color, hover_color, text, font, text_color, action=None):
-        """
-        Below is a quick explanation for the pygame.Rect() button class, 
-        param x: x position of the button
-        param y: y position of the button
-        param width: width of the button
-        param height: height of the button
-        param color: color of the button
-        param hover_color: color of the button when hovered
-        param text: text to display on the button
-        param font: font of the text
-        param text_color: color of the text
-        param action: function to call when the button is clicked
-=======
         for rect in self.blocks:
             rect.blit(self.screen)
 
         pygame.display.update()
         # pygame.display.flip()
->>>>>>> 502168ad32e8334dd7d95888bd3fac2a3d1fe2b7
 
 
 
