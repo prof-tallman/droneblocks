@@ -32,7 +32,24 @@ class Interface:
             for event in pygame.event.get():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    print("MOUSE CLICKED")
+                    for block in self.blocks:
+                        if block.surface_rectangle.collidepoint(event.pos):
+                            block.dragging = True
+                            print(block.dragging)
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    for block in self.blocks:
+                        if block.surface_rectangle.collidepoint(event.pos):
+                            block.dragging = False
+                            print(block.dragging)
+                elif event.type == pygame.MOUSEMOTION:
+                    for block in self.blocks:
+                        if block.dragging:
+                            if block.surface_rectangle.collidepoint(event.pos):
+                                mouse_x, mouse_y = event.pos
+                                block.x = mouse_x - block.width // 2
+                                block.y = mouse_y - block.height // 2
+                                block.surface_rectangle.topleft = (block.x, block.y)
+                                print(block.x, block.y)
 
                 if event.type == pygame.QUIT:
                     self.running = False #to actually exit the loop
@@ -75,19 +92,23 @@ class Block:
         self.y = y
         self.width, self.height = 100, 100
         self.action = action
+        self.dragging = False
 
         self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)  # Enables transparency
+        self.surface.fill((200, 200, 200))
+        
         self.surface_rectangle = self.surface.get_rect() # drawing rectangle exactly to the surface to enable interactivity like collidepoint
         self.surface_rectangle.topleft = (self.x, self.y) 
 
-        # temporary font so that we can see the names of the blocks
-        temp_font = pygame.font.SysFont('Arial', 14).render(action, True, (0, 0, 0))
-        self.surface.blit(temp_font, (5, 5))
-
     def blit(self, screen: pygame.Surface):
         screen.blit(self.surface, (self.x, self.y))
+        
         self.check_hover(pygame.mouse.get_pos())
-        self.check_click(pygame.mouse.get_pos())
+        # self.check_click(pygame.mouse.get_pos())
+
+        # temporary font so that we can see the names of the blocks
+        temp_font = pygame.font.SysFont('Arial', 14).render(self.action, True, (0, 0, 0))
+        self.surface.blit(temp_font, (5, 5))
 
     #The rect.collidepoint() method is used to check if a point is inside a rectangle, can use it for highlighting detection
     def check_hover(self, mouse_pos):
@@ -95,9 +116,6 @@ class Block:
             self.surface.fill((200, 200, 200))
         else:
             self.surface.fill((255, 255, 255))
-        # temporary font so that we can see the names of the blocks
-        temp_font = pygame.font.SysFont('Arial', 14).render(self.action, True, (0, 0, 0))
-        self.surface.blit(temp_font, (5, 5))
 
     def check_click(self, mouse_pos):
         if self.surface_rectangle.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
