@@ -13,17 +13,17 @@ class Interface:
         self.background_color = (0, 0, 50)
         
         self.blocks = [
-            Block(50, 300, 'rotate_ccw'),
-            Block(150, 300, 'forward'),
-            Block(250, 300, 'rotate_cw'),
-            Block(50, 400, 'left'),
-            Block(150, 400, 'backward'),
-            Block(250, 400, 'right'),
-            Block(50, 500, 'up'),
-            Block(150, 500, 'hover'),
-            Block(250, 500, 'down'),
-            Block(100, 600, 'takeoff'),
-            Block(200, 600, 'land')
+            Block(25, 200, 'rotate_ccw'),
+            Block(150, 200, 'forward'),
+            Block(275, 200, 'rotate_cw'),
+            Block(25, 325, 'left'),
+            Block(150, 325, 'backward'),
+            Block(275, 325, 'right'),
+            Block(25, 450, 'up'),
+            Block(150, 450, 'hover'),
+            Block(275, 450, 'down'),
+            Block(87.5, 575, 'takeoff'),
+            Block(212.5, 575, 'land')
         ]
 
     def run(self):
@@ -50,6 +50,8 @@ class Interface:
         # text_surface = self.font.render(self.text, True, self.text_color)
         # text_rect = text_surface.get_rect(center=self.rect.center)
 
+        pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(400, 0, 1, self.SIZE[1])) # divider between blocks and control area
+
         for rect in self.blocks:
             rect.blit(self.screen)
 
@@ -68,32 +70,39 @@ class Block:
             action (str): The text to be displayed on the object.
         """
         color = (255,255,255)
-
-        self.width, self.height = 75, 75
+        
+        self.x = x
+        self.y = y
+        self.width, self.height = 100, 100
+        self.action = action
 
         self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)  # Enables transparency
-        self.surface.fill(color)  # Fill the rectangle with green
+        self.surface_rectangle = self.surface.get_rect() # drawing rectangle exactly to the surface to enable interactivity like collidepoint
+        self.surface_rectangle.topleft = (self.x, self.y) 
 
+        # temporary font so that we can see the names of the blocks
         temp_font = pygame.font.SysFont('Arial', 14).render(action, True, (0, 0, 0))
         self.surface.blit(temp_font, (5, 5))
 
-        self.action = action
-
-        self.x = x
-        self.y = y
-
-
-    def blit(self, screen):
+    def blit(self, screen: pygame.Surface):
         screen.blit(self.surface, (self.x, self.y))
+        self.check_hover(pygame.mouse.get_pos())
+        self.check_click(pygame.mouse.get_pos())
 
     #The rect.collidepoint() method is used to check if a point is inside a rectangle, can use it for highlighting detection
     def check_hover(self, mouse_pos):
-        self.hovered = self.rect.collidepoint(mouse_pos)
+        if self.surface_rectangle.collidepoint(mouse_pos):
+            self.surface.fill((200, 200, 200))
+        else:
+            self.surface.fill((255, 255, 255))
+        # temporary font so that we can see the names of the blocks
+        temp_font = pygame.font.SysFont('Arial', 14).render(self.action, True, (0, 0, 0))
+        self.surface.blit(temp_font, (5, 5))
 
     def check_click(self, mouse_pos):
-        if self.rect.collidepoint(mouse_pos) and self.action:
+        if self.surface_rectangle.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
             print(f"{self.action} clicked")
-            self.action()  # Call the action function if the button was clicked
+            
 
 
 if __name__ == "__main__":
