@@ -24,19 +24,17 @@ class Interface:
 
         # scrollable command surface to place blocks
         self.COMMAND_SIZE = (self.SIZE[0] // 2, self.SIZE[1] + 500) ### REMOVE 500 - TEMPORARY FOR DEMONSTRATION
-        self.command_height = self.SIZE[1] + 500
-        self.command_width = self.SIZE[0] // 2
         self.command_scroll_y = self.SIZE[1]
-        self.command_surface = pygame.Surface((self.command_width, self.command_height))
+        self.command_surface = pygame.Surface((self.COMMAND_SIZE[0], self.COMMAND_SIZE[1]))
 
         # TEMPORARY GRADIENT - FOR DEMONSTRATION
-        for y in range(self.command_height):
+        for y in range(self.COMMAND_SIZE[1]):
             color = (
-          255 * (self.command_height - y) // self.command_height,  # Red component
+          255 * (self.COMMAND_SIZE[1] - y) // self.COMMAND_SIZE[1],  # Red component
           0,  # Green component
-          255 * y // self.command_height  # Blue component
+          255 * y // self.COMMAND_SIZE[1]  # Blue component
             )
-            pygame.draw.line(self.command_surface, color, (0, y), (self.command_width, y))
+            pygame.draw.line(self.command_surface, color, (0, y), (self.COMMAND_SIZE[0], y))
 
  
         self.blocks = [
@@ -101,7 +99,7 @@ class Interface:
                   if event.y > 0: # scroll up
                     self.command_scroll_y = max(self.command_scroll_y - 30, 0 + self.SIZE[1])
                   elif event.y < 0: # scroll down
-                    self.command_scroll_y = min(self.command_scroll_y + 30, self.command_height)
+                    self.command_scroll_y = min(self.command_scroll_y + 30, self.COMMAND_SIZE[1])
 
                 elif event.type == pygame.QUIT:
                     self.running = False #to actually exit the loop
@@ -120,7 +118,7 @@ class Interface:
 
         pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(self.SIZE[0]//2 - 2, 0, 1, self.SIZE[1])) # divider between blocks and control area
         
-        self.screen.blit(self.command_surface, (self.SIZE[0]//2, self.command_scroll_y - self.command_height))
+        self.screen.blit(self.command_surface, (self.SIZE[0]//2, self.command_scroll_y - self.COMMAND_SIZE[1]))
         
         for rect in self.blocks:
             rect.blit(self.screen)
@@ -137,8 +135,8 @@ class Interface:
         """
         # adjusting the height of the command surface
         padding = 10
-        new_height = self.command_height + block.height + padding
-        self.command_surface = pygame.Surface((self.command_width, new_height))
+        new_height = self.COMMAND_SIZE[1] + block.height + padding
+        self.command_surface = pygame.Surface((self.COMMAND_SIZE[0], new_height))
          
     def remove_block(self, block):
         """
@@ -149,8 +147,8 @@ class Interface:
         """
         # adjusting the height of the command surface
         padding = 10
-        new_height = self.command_height - block.height - padding
-        self.command_surface = pygame.Surface((self.command_width, new_height))
+        new_height = self.COMMAND_SIZE[1] - block.height - padding
+        self.command_surface = pygame.Surface((self.COMMAND_SIZE[0], new_height))
 
 class Block:
     def __init__(self, x: int, y: int, action: str):
