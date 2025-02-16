@@ -160,7 +160,7 @@ class Interface:
                 elif event.type == pygame.MOUSEWHEEL:
                     #for block in self.used_blocks:
                     #   block.scrolling = True
-                    self.used_blocks[0].y += event.y*10   
+                    self.used_blocks[0].y += event.y*20   
 
                     if event.y > 0: # scroll up
                         self.command_scroll_y = max(self.command_scroll_y - 30, 0 + self.SIZE[1])
@@ -201,9 +201,13 @@ class Interface:
         # The 0th index block retains it's own position which is changed by scrolling
         for i in range(len(self.used_blocks)):
             block = self.used_blocks[i]
+                        
             if not block.dragging:
                 if block.id == 0:
-                    continue
+                    if len(self.used_blocks) == 1:
+                        block.y = self.block_bottom
+                        block.x = self.COMMAND_SIZE[0]
+                        continue
 
                 else:
                     block.y = self.used_blocks[i-1].y - block.height    
