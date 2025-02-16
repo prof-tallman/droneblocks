@@ -18,7 +18,7 @@ class Interface:
         pygame.init()
         self.running = True
 
-        self.SIZE = (1280, 720)
+        self.SIZE = (1280, 700)
         self.screen = pygame.display.set_mode(self.SIZE)
         self.background_color = (0, 0, 50)
 
@@ -51,6 +51,17 @@ class Interface:
             Block(212.5, 575, 'land')
         ]
 
+        # Blocks that are currently on the programming side
+        self.used_blocks = []
+        self.current_block = None
+
+        self.std_block_size = (100, 100)
+
+        # The y axis coordiante of the block when it's at the bottom
+        self.block_bottom = self.SIZE[1]-self.std_block_size[1]
+        # Using list so that the values can be changed easily
+        self.next_position = [self.COMMAND_SIZE[0], self.block_bottom]
+
     def run(self):
         """
         Main loop for running the program interface.
@@ -77,22 +88,71 @@ class Interface:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for block in self.blocks:
                         if block.surface_rectangle.collidepoint(event.pos):
-                            block.dragging = True
-                            print(block.dragging)
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    for block in self.blocks:
+                            # NOTE: Creates a copy and adds it to the in use blocks
+                            copy = block.copy()
+                            self.current_block = copy
+
+                            # Commented this out since we won't want to be moving blocks that are on display
+                            # block.dragging = True
+
+                    for block in self.used_blocks:
+                        # print((block.x, block.y), event.pos)
+                        # block.dragging = True
                         if block.surface_rectangle.collidepoint(event.pos):
+                            block.dragging = True
+
+                elif event.type == pygame.MOUSEBUTTONUP:
+
+                    if self.current_block:
+                        # Makes sure that the block gets placed on the program side (right)
+                        if event.pos[0] >= self.COMMAND_SIZE[0]+self.current_block.width//2:
+                            # Moving this operation to draw
+                            """print("Moving to ", self.next_position)
+                            self.next_position[1] -= self.std_block_size[1]
+
+                            if self.next_position[1] == -self.std_block_size[1]:
+                                self.next_position[0] += self.std_block_size[0]
+                                self.next_position[1] = self.block_bottom"""
+
+                            self.used_blocks.append(self.current_block.copy(drag=False, id=len(self.used_blocks)-1))
+                            self.current_block.dragging = False
+                            self.current_block = None
+
+                        else:
+                            self.current_block.dragging = False 
+                            self.current_block = None
+
+
+                    # Events for already placed blocks
+                    for block in self.used_blocks:
+                        if block.surface_rectangle.collidepoint(event.pos):
+                            if event.pos[0] < self.COMMAND_SIZE[0]+block.width//2:
+                                id = block.id
+                                for subset_block in self.used_blocks[block.id:]:
+                                    subset_block.id -=1
+
+                                del self.used_blocks[id]
+                                
                             block.dragging = False
-                            print(block.dragging)
+
+                    print(f"Number of placed blocks: {len(self.used_blocks)}")
+
+
+
                 elif event.type == pygame.MOUSEMOTION:
-                    for block in self.blocks:
+                    for block in self.used_blocks:
                         if block.dragging:
-                            if block.surface_rectangle.collidepoint(event.pos):
-                                mouse_x, mouse_y = event.pos
-                                block.x = mouse_x - block.width // 2
-                                block.y = mouse_y - block.height // 2
-                                block.surface_rectangle.topleft = (block.x, block.y)
-                                print(block.x, block.y)
+                            # if block.surface_rectangle.collidepoint(event.pos):
+                            mouse_x, mouse_y = event.pos
+                            block.x = mouse_x - block.width // 2
+                            block.y = mouse_y - block.height // 2
+                            block.surface_rectangle.topleft = (block.x, block.y)
+                            # print(block.x, block.y)
+
+                    if self.current_block:
+                        mouse_x, mouse_y = event.pos
+                        self.current_block.x = mouse_x - self.std_block_size[0] // 2
+                        self.current_block.y = mouse_y - self.std_block_size[1] // 2
 
                 # scrolling command surface
                 elif event.type == pygame.MOUSEWHEEL:
@@ -120,8 +180,23 @@ class Interface:
         
         self.screen.blit(self.command_surface, (self.SIZE[0]//2, self.command_scroll_y - self.COMMAND_SIZE[1]))
         
-        for rect in self.blocks:
+
+        for block in self.used_blocks:
+            if not block.dragging:
+                block.y = self.SIZE[1] - ((block.id+1)%7)*block.height - block.height
+                # if block.y < 0:
+                    # block.y = self.block_bottom
+                
+                block.x = self.COMMAND_SIZE[0] + ( (block.id+1)//7 ) *block.width
+                # block.x = self.COMMAND_SIZE[0] + (block.id+1)*block.width
+
+        for rect in self.blocks+self.used_blocks:
             rect.blit(self.screen)
+
+
+        if self.current_block:
+            self.current_block.blit(self.screen)
+
 
         # pygame.display.update() # updates portion of screen if given arguments, else updates whole screen
         pygame.display.flip() # updates whole screen
@@ -151,7 +226,7 @@ class Interface:
         self.command_surface = pygame.Surface((self.COMMAND_SIZE[0], new_height))
 
 class Block:
-    def __init__(self, x: int, y: int, action: str):
+    def __init__(self, x: int, y: int, action: str, id=None):
         """
         Initializes a new Block object for the drone programming interface.
         
@@ -177,6 +252,7 @@ class Block:
         self.width, self.height = 100, 100
         self.action = action
         self.dragging = False
+        self.id = id
 
         self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)  # Enables transparency
         self.surface.fill((200, 200, 200))
@@ -192,6 +268,7 @@ class Block:
         Parameters:
           screen (pygame.Surface): The surface to draw the block on.
         """
+        self.surface_rectangle.topleft = (self.x, self.y) 
         screen.blit(self.surface, (self.x, self.y))
         
         self.check_hover(pygame.mouse.get_pos())
@@ -225,6 +302,13 @@ class Block:
             print(f"{self.action} clicked")
             
 
+    def copy(self, drag=True, id=None):
+        block = Block(self.x, self.y, self.action, id)
+        block.dragging = drag
+        return block
+    
+    def set_position(self, pos):
+        self.x, self.y = pos
 
 if __name__ == "__main__":
     interface = Interface()
