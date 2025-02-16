@@ -114,7 +114,9 @@ class Interface:
                                 self.next_position[0] += self.std_block_size[0]
                                 self.next_position[1] = self.block_bottom"""
 
-                            self.used_blocks.append(self.current_block.copy(drag=False, id=len(self.used_blocks)-1))
+                            self.current_block.x = self.COMMAND_SIZE[0]
+                            self.current_block.y = self.block_bottom
+                            self.used_blocks.append(self.current_block.copy(drag=False, id=len(self.used_blocks)))
                             self.current_block.dragging = False
                             self.current_block = None
 
@@ -156,13 +158,17 @@ class Interface:
 
                 # scrolling command surface
                 elif event.type == pygame.MOUSEWHEEL:
-                  if event.y > 0: # scroll up
-                    self.command_scroll_y = max(self.command_scroll_y - 30, 0 + self.SIZE[1])
-                  elif event.y < 0: # scroll down
-                    self.command_scroll_y = min(self.command_scroll_y + 30, self.COMMAND_SIZE[1])
+                    #for block in self.used_blocks:
+                    #   block.scrolling = True
+                    self.used_blocks[0].y += event.y*10   
 
-                elif event.type == pygame.QUIT:
-                    self.running = False #to actually exit the loop
+                    if event.y > 0: # scroll up
+                        self.command_scroll_y = max(self.command_scroll_y - 30, 0 + self.SIZE[1])
+                    elif event.y < 0: # scroll down
+                      self.command_scroll_y = min(self.command_scroll_y + 30, self.COMMAND_SIZE[1])
+
+                    elif event.type == pygame.QUIT:
+                        self.running = False #to actually exit the loop
 
             # BLITTING
             self.draw()
@@ -181,14 +187,28 @@ class Interface:
         self.screen.blit(self.command_surface, (self.SIZE[0]//2, self.command_scroll_y - self.COMMAND_SIZE[1]))
         
 
-        for block in self.used_blocks:
-            if not block.dragging:
+        # Used originally for grid formatted blocks
+        """for block in self.used_blocks:
+            if not block.dragging and not block.scrolling:
+
+                # Block placement based on ID
                 block.y = self.SIZE[1] - ((block.id+1)%7)*block.height - block.height
-                # if block.y < 0:
-                    # block.y = self.block_bottom
-                
-                block.x = self.COMMAND_SIZE[0] + ( (block.id+1)//7 ) *block.width
-                # block.x = self.COMMAND_SIZE[0] + (block.id+1)*block.width
+
+                block.x = self.COMMAND_SIZE[0] + ( (block.id+1)//7 ) * block.width"""
+        
+        # Used for scrollable blocks
+        # All block placements are based on the previous block
+        # The 0th index block retains it's own position which is changed by scrolling
+        for i in range(len(self.used_blocks)):
+            block = self.used_blocks[i]
+            if not block.dragging:
+                if block.id == 0:
+                    continue
+
+                else:
+                    block.y = self.used_blocks[i-1].y - block.height    
+                    block.x = self.COMMAND_SIZE[0]
+
 
         for rect in self.blocks+self.used_blocks:
             rect.blit(self.screen)
@@ -253,6 +273,7 @@ class Block:
         self.action = action
         self.dragging = False
         self.id = id
+        self.scrolling = False
 
         self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)  # Enables transparency
         self.surface.fill((200, 200, 200))
