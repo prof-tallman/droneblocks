@@ -1,6 +1,6 @@
 import pygame
 from collections import deque
-class ScrollableBlockList:
+class ScrollableCommandList:
     
     def __init__(self, commandList, screen, widthRatio=0.3, height = 300, x=0, y=0):
         '''Class responsbible for rendering the commands the drone still needs to execute.
