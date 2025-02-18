@@ -21,6 +21,7 @@ class ScrollableCommandList:
         self.height = height #Height of list
         self.bgColor = (200, 200, 200)  #Light gray background of list
         self.blockColor = (100, 149, 237)  #Block color. Light blue
+        self.currentlyExecutingBlockColor = (255, 100, 100)
         self.textColor = (255, 255, 255)
         self.blockHeight = 100
         self.blockSpacing = 10
@@ -45,7 +46,10 @@ class ScrollableCommandList:
             blockY = self.y + i * (self.blockHeight + self.blockSpacing)
 
             #Draw block background
-            pygame.draw.rect(self.screen, self.blockColor, (self.x, blockY, self.width, self.blockHeight))
+            if startIndex + i == 0:
+                pygame.draw.rect(self.screen, self.currentlyExecutingBlockColor, (self.x, blockY, self.width, self.blockHeight))
+            else:
+                pygame.draw.rect(self.screen, self.blockColor, (self.x, blockY, self.width, self.blockHeight))
 
             #Render command text
             textSurface = self.font.render(command, True, self.textColor)
