@@ -1,6 +1,6 @@
 import pygame
 import sys
-from ScrollableCommandListOpacity import ScrollableCommandList
+from ScrollableCommandList import ScrollableCommandList
 
 pygame.init()
 
