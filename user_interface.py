@@ -1,6 +1,6 @@
 import pygame
 import sys
-from ScrollableCommandList import ScrollableCommandList
+from ScrollableCommandListOpacity import ScrollableCommandList
 
 pygame.init()
 
@@ -36,7 +36,7 @@ button_clicked = False  #Tracks the button state
 
 commands = ["takeOff1", "fly_forward2", "fly_up3", "fly_down4", "fly_forward5", "fly_up6", "fly_down7", "fly_forward8", "fly_up9", "fly_down10", "land11"]
 
-command_list = ScrollableCommandList(commands, screen, widthRatio = 0.12, x=50, y=50)
+command_list = ScrollableCommandList(commands, screen, widthRatio=0.12, height=300, x=50, y=50)
 
 
 ################################################################
