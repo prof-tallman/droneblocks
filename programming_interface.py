@@ -38,7 +38,7 @@ class Interface:
         self.background_color = (0, 0, 50)
 
         # relative path to icon folder
-        self.icons_path = os.path.join(os.path.dirname(__file__), 'icons') 
+        self.icons_path = os.path.join(os.path.dirname(__file__), 'Icons') 
 
         # dictionary of icons for each block paired with their action name and relative path to icon folder
         self.icons = {
@@ -57,7 +57,7 @@ class Interface:
 
 
         # scrollable command surface to place blocks
-        self.COMMAND_SIZE = (self.SIZE[0] // 2, self.SIZE[1] + 500) ### REMOVE 500 - TEMPORARY FOR DEMONSTRATION
+        self.COMMAND_SIZE = (self.SIZE[0] // 2, self.SIZE[1] + 3000) # creating a big scrollable surface
         self.command_scroll_y = self.SIZE[1]
         self.command_surface = pygame.Surface((self.COMMAND_SIZE[0], self.COMMAND_SIZE[1]))
 
@@ -120,6 +120,9 @@ class Interface:
             
             # EVENT HANDLING
             for event in pygame.event.get():
+
+                if event.type == pygame.QUIT:
+                    self.running = False #to actually exit the loop
 
                 # dragging blocks
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -205,11 +208,10 @@ class Interface:
                     elif event.y < 0: # scroll down
                       self.command_scroll_y = min(self.command_scroll_y + 30, self.COMMAND_SIZE[1])
 
-                    elif event.type == pygame.QUIT:
-                        self.running = False #to actually exit the loop
 
                 if self.run_button.check_click(event):
-                    print("Executing") # Placeholder for button click, may need to connect with runtime team for more robust integration
+                    commands = [block.action for block in sorted(self.used_blocks, key=lambda b: b.y, reverse=True)]
+                    print("Executing Commands:", commands)
 
             # BLITTING
             self.draw()
@@ -251,6 +253,9 @@ class Interface:
                         block.y = self.block_bottom - (i * (block.height + 10))
                         block.x = self.COMMAND_SIZE[0] + 20
                         continue
+                    else:
+                        block.x = self.COMMAND_SIZE[0] + 20
+                        continue
 
                 else:
                     block.y = self.used_blocks[i-1].y - block.height - 10
@@ -267,30 +272,6 @@ class Interface:
 
         # pygame.display.update() # updates portion of screen if given arguments, else updates whole screen
         pygame.display.flip() # updates whole screen
-
-    def add_block(self, block):
-        """
-        Adds a new block to the list of commands
-
-        Parameters:
-          block (Block): The block to add to the interface.
-        """
-        # adjusting the height of the command surface
-        padding = 10
-        new_height = self.COMMAND_SIZE[1] + block.height + padding
-        self.command_surface = pygame.Surface((self.COMMAND_SIZE[0], new_height))
-         
-    def remove_block(self, block):
-        """
-        Removes a block from the list of commands
-
-        Parameters:
-          block (Block): The block to remove from the interface.
-        """
-        # adjusting the height of the command surface
-        padding = 10
-        new_height = self.COMMAND_SIZE[1] - block.height - padding
-        self.command_surface = pygame.Surface((self.COMMAND_SIZE[0], new_height))
 
 class Block:
     def __init__(self, x: int, y: int, action: str, id=None, icon = None):
