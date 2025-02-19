@@ -1,7 +1,22 @@
 # Importing the library
 import pygame
+import os
  
- 
+class Button:
+    def __init__(self, x, y, width, height, text, color, hover_color):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+        self.color = color
+        self.hover_color = hover_color
+
+    def blit(self, screen):
+        pygame.draw.rect(screen, self.color, self.rect, border_radius=10)
+        font = pygame.font.SysFont('Arial', 20).render(self.text, True, (0, 0, 0))
+        screen.blit(font, font.get_rect(center=self.rect.center))
+
+    def check_click(self, event):
+        return event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos)
+
 class Interface:
     def __init__(self):
         """
@@ -22,6 +37,25 @@ class Interface:
         self.screen = pygame.display.set_mode(self.SIZE)
         self.background_color = (0, 0, 50)
 
+        # relative path to icon folder
+        self.icons_path = os.path.join(os.path.dirname(__file__), 'icons') 
+
+        # dictionary of icons for each block paired with their action name and relative path to icon folder
+        self.icons = {
+            "rotate_ccw": pygame.image.load(os.path.join(self.icons_path, "rotate_left.png")),
+            "rotate_cw": pygame.image.load(os.path.join(self.icons_path, "rotate_right.png")),
+            "fly_forward": pygame.image.load(os.path.join(self.icons_path, "fly_forward.png")),
+            "fly_backward": pygame.image.load(os.path.join(self.icons_path, "fly_backward.png")),
+            "fly_left": pygame.image.load(os.path.join(self.icons_path, "fly_left.png")),
+            "fly_right": pygame.image.load(os.path.join(self.icons_path, "fly_right.png")),
+            "fly_up": pygame.image.load(os.path.join(self.icons_path, "fly_up.png")),
+            "fly_down": pygame.image.load(os.path.join(self.icons_path, "fly_down.png")),
+            "hover": pygame.image.load(os.path.join(self.icons_path, "hover.png")),
+            "takeoff": pygame.image.load(os.path.join(self.icons_path, "takeoff.png")),
+            "land": pygame.image.load(os.path.join(self.icons_path, "land.png")),
+        }
+
+
         # scrollable command surface to place blocks
         self.COMMAND_SIZE = (self.SIZE[0] // 2, self.SIZE[1] + 500) ### REMOVE 500 - TEMPORARY FOR DEMONSTRATION
         self.command_scroll_y = self.SIZE[1]
@@ -36,19 +70,22 @@ class Interface:
             )
             pygame.draw.line(self.command_surface, color, (0, y), (self.COMMAND_SIZE[0], y))
 
+        # Run Button initialization
+        self.run_button = Button(self.SIZE[0] // 2 + 150, self.SIZE[1] - 120, 150, 50, "Execute", (100, 200, 100), (150, 255, 150))
+
  
         self.blocks = [
-            Block(25, 200, 'rotate_ccw'),
-            Block(150, 200, 'fly_forward'),
-            Block(275, 200, 'rotate_cw'),
-            Block(25, 325, 'fly_left'),
-            Block(150, 325, 'fly_backward'),
-            Block(275, 325, 'fly_right'),
-            Block(25, 450, 'fly_up'),
-            Block(150, 450, 'hover'),
-            Block(275, 450, 'fly_down'),
-            Block(87.5, 575, 'takeoff'),
-            Block(212.5, 575, 'land')
+            Block(25, 200, 'rotate_ccw', icon=self.icons["rotate_ccw"]),
+            Block(150, 200, 'fly_forward', icon=self.icons["fly_forward"]),
+            Block(275, 200, 'rotate_cw', icon=self.icons["rotate_cw"]),
+            Block(25, 325, 'fly_left', icon=self.icons["fly_left"]),
+            Block(150, 325, 'fly_backward', icon=self.icons["fly_backward"]),
+            Block(275, 325, 'fly_right', icon=self.icons["fly_right"]),
+            Block(25, 450, 'fly_up', icon=self.icons["fly_up"]),
+            Block(150, 450, 'hover', icon=self.icons["hover"]),
+            Block(275, 450, 'fly_down', icon=self.icons["fly_down"]),
+            Block(87.5, 575, 'takeoff', icon=self.icons["takeoff"]),
+            Block(212.5, 575, 'land', icon=self.icons["land"])
         ]
 
         # Blocks that are currently on the programming side
@@ -160,7 +197,8 @@ class Interface:
                 elif event.type == pygame.MOUSEWHEEL:
                     #for block in self.used_blocks:
                     #   block.scrolling = True
-                    self.used_blocks[0].y += event.y*20   
+                    if self.used_blocks:
+                        self.used_blocks[0].y += event.y*20   
 
                     if event.y > 0: # scroll up
                         self.command_scroll_y = max(self.command_scroll_y - 30, 0 + self.SIZE[1])
@@ -170,6 +208,9 @@ class Interface:
                     elif event.type == pygame.QUIT:
                         self.running = False #to actually exit the loop
 
+                if self.run_button.check_click(event):
+                    print("Executing") # Placeholder for button click, may need to connect with runtime team for more robust integration
+
             # BLITTING
             self.draw()
 
@@ -177,7 +218,7 @@ class Interface:
 
     def draw(self):
         """
-        Draws the current state of the screen, uses blit method of the block class to draw each block.
+        Draws the current state of the screen, uses blit method of the block class to draw each block. As well as the command surface and run button.
         This method fills the screen with the background color, draws a divider between commands and control area.
         """
         self.screen.fill(self.background_color)
@@ -185,6 +226,8 @@ class Interface:
         pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(self.SIZE[0]//2 - 2, 0, 1, self.SIZE[1])) # divider between blocks and control area
         
         self.screen.blit(self.command_surface, (self.SIZE[0]//2, self.command_scroll_y - self.COMMAND_SIZE[1]))
+
+        self.run_button.blit(self.screen) 
         
 
         # Used originally for grid formatted blocks
@@ -205,13 +248,13 @@ class Interface:
             if not block.dragging:
                 if block.id == 0:
                     if len(self.used_blocks) == 1:
-                        block.y = self.block_bottom
-                        block.x = self.COMMAND_SIZE[0]
+                        block.y = self.block_bottom - (i * (block.height + 10))
+                        block.x = self.COMMAND_SIZE[0] + 20
                         continue
 
                 else:
-                    block.y = self.used_blocks[i-1].y - block.height    
-                    block.x = self.COMMAND_SIZE[0]
+                    block.y = self.used_blocks[i-1].y - block.height - 10
+                    block.x = self.COMMAND_SIZE[0] + 20
 
 
         for rect in self.blocks+self.used_blocks:
@@ -250,7 +293,7 @@ class Interface:
         self.command_surface = pygame.Surface((self.COMMAND_SIZE[0], new_height))
 
 class Block:
-    def __init__(self, x: int, y: int, action: str, id=None):
+    def __init__(self, x: int, y: int, action: str, id=None, icon = None):
         """
         Initializes a new Block object for the drone programming interface.
         
@@ -278,10 +321,11 @@ class Block:
         self.dragging = False
         self.id = id
         self.scrolling = False
+        self.icon = icon
 
         self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)  # Enables transparency
         self.surface.fill((200, 200, 200))
-        
+
         self.surface_rectangle = self.surface.get_rect() # drawing rectangle exactly to the surface to enable interactivity like collidepoint
         self.surface_rectangle.topleft = (self.x, self.y) 
 
@@ -295,6 +339,12 @@ class Block:
         """
         self.surface_rectangle.topleft = (self.x, self.y) 
         screen.blit(self.surface, (self.x, self.y))
+
+        # Draws the icons dynamically
+        if self.icon:
+            scaled_icon = pygame.transform.scale(self.icon, (self.width, self.height))  # Scale icon
+            icon_rect = scaled_icon.get_rect(center=(self.x + self.width // 2, self.y + self.height // 2))  # Center icon
+            screen.blit(scaled_icon, icon_rect.topleft)  # Blit icon at new position
         
         self.check_hover(pygame.mouse.get_pos())
         # self.check_click(pygame.mouse.get_pos())
@@ -302,7 +352,7 @@ class Block:
         # temporary font so that we can see the names of the blocks
         temp_font = pygame.font.SysFont('Arial', 14).render(self.action, True, (0, 0, 0))
         self.surface.blit(temp_font, (5, 5))
-
+        
     #The rect.collidepoint() method is used to check if a point is inside a rectangle, can use it for highlighting detection
     def check_hover(self, mouse_pos):
         """ 
@@ -328,7 +378,7 @@ class Block:
             
 
     def copy(self, drag=True, id=None):
-        block = Block(self.x, self.y, self.action, id)
+        block = Block(self.x, self.y, self.action, id, self.icon)
         block.dragging = drag
         return block
     
