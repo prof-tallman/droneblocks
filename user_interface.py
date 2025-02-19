@@ -28,15 +28,10 @@ battery_image = pygame.image.load("icons/BatteryBar.png").convert_alpha()
 temperature_image = pygame.image.load("icons/TemperatureBar.png").convert_alpha()
 speed_image = pygame.image.load("icons/SpeedBar.png").convert_alpha()
 
-
-
-
 #Resize while maintaining aspect ratio
 battery_image = pygame.transform.smoothscale(battery_image, (icon_width, icon_height))
 temperature_image = pygame.transform.smoothscale(temperature_image, (icon_width, icon_height))
 speed_image = pygame.transform.smoothscale(speed_image, (icon_width, icon_height))
-
-
 
 #Font Setup
 font = pygame.font.SysFont(None, 30)
@@ -58,7 +53,6 @@ button_clicked = False  #Tracks the button state
 commands = ["takeoff", "fly_forward", "fly_up", "fly_down", "fly_forward", 
             "fly_up", "fly_down", "fly_forward", "fly_up", "fly_down", "land"]
 command_list = ScrollableCommandList(commands, screen, widthRatio=0.12, height=400, x=120, y=190)
-
 
 running = True
 while running:  

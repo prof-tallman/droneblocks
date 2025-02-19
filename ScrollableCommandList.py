@@ -30,8 +30,12 @@ class ScrollableCommandList:
 
         #Load PNG icons and store in dictionary
         self.icon_images = {}
-        for command in commandList:
-            image_path = f"icons/{command}.png"  #PNG name must match command taken in inside constructor for this to work
+        for i, command in enumerate(commandList):
+            
+            if i == 0: #PNG name must match command taken in inside constructor for this to work
+                image_path = f"icons/{command}_red.png" 
+            else:
+                image_path = f"icons/{command}.png" 
             try:
                 img = pygame.image.load(image_path).convert_alpha()
                 self.icon_images[command] = pygame.transform.smoothscale(img, (self.blockSize, self.blockSize))
@@ -59,6 +63,16 @@ class ScrollableCommandList:
 
             #Load corresponding image
             img = self.icon_images.get(command, None)
+            
+            #Ensures that the first item always uses red version if available
+            if i == 0:
+                red_image_path = f"icons/{command}_red.png"
+                try:
+                    img = pygame.image.load(red_image_path).convert_alpha()
+                    img = pygame.transform.smoothscale(img, (self.blockSize, self.blockSize))
+                except pygame.error:
+                    pass  #If red version is not available, move on and use regular image
+                    
             if img:
                 #Apply opacity
                 img = img.copy()
