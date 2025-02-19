@@ -17,6 +17,27 @@ SCREEN_HEIGHT = 700
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Drone GUI")
 
+background_image = pygame.image.load("icons/background.png")  
+background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Scale it to fit
+
+icon_height = 32
+icon_width = 140
+
+#Load status icons
+battery_image = pygame.image.load("icons/BatteryBar.png").convert_alpha()
+temperature_image = pygame.image.load("icons/TemperatureBar.png").convert_alpha()
+speed_image = pygame.image.load("icons/SpeedBar.png").convert_alpha()
+
+
+
+
+#Resize while maintaining aspect ratio
+battery_image = pygame.transform.smoothscale(battery_image, (icon_width, icon_height))
+temperature_image = pygame.transform.smoothscale(temperature_image, (icon_width, icon_height))
+speed_image = pygame.transform.smoothscale(speed_image, (icon_width, icon_height))
+
+
+
 #Font Setup
 font = pygame.font.SysFont(None, 30)
 
@@ -27,28 +48,24 @@ def draw_text(text, x, y, color=TEXT_COLOR, size=30):
     screen.blit(label, (x, y))
 
 #Start / Stop Button Properties
-button_rect = pygame.Rect(540, 600, 200, 50)  #(x, y, width, height)
+button_rect = pygame.Rect(400, 620, 200, 50)  #(x, y, width, height)
 button_font = pygame.font.Font(None, 36)
 
 #Initial Button State
 button_text = "Start"
 button_clicked = False  #Tracks the button state
 
-commands = ["takeOff1", "fly_forward2", "fly_up3", "fly_down4", "fly_forward5", "fly_up6", "fly_down7", "fly_forward8", "fly_up9", "fly_down10", "land11"]
+commands = ["takeoff", "fly_forward", "fly_up", "fly_down", "fly_forward", 
+            "fly_up", "fly_down", "fly_forward", "fly_up", "fly_down", "land"]
+command_list = ScrollableCommandList(commands, screen, widthRatio=0.12, height=400, x=120, y=190)
 
-command_list = ScrollableCommandList(commands, screen, widthRatio=0.12, height=300, x=50, y=50)
-
-
-################################################################
-#Temporary to display text about removing objects from list
-font = pygame.font.Font(None, 36)
-text_surface = font.render("Press space to remove element from scrollable list for testing", True, TEXT_COLOR)
-text_rect = text_surface.get_rect(center=(700, 500))
-################################################################
 
 running = True
 while running:  
-    screen.fill(BACKGROUND_COLOR)
+    screen.blit(background_image, (0, 0))  #Render background PNG
+    screen.blit(battery_image, (1090, 47)) #Render battery status icon
+    screen.blit(temperature_image, (1090, 82)) #Render temp status icon
+    screen.blit(speed_image, (1090, 117)) #Render speed status icon
     
     #Get Mouse Position
     mouse_pos = pygame.mouse.get_pos()
@@ -90,7 +107,6 @@ while running:
         if event.type == pygame.KEYDOWN: 
             if event.key == pygame.K_SPACE:
                 command_list.dequeue_command()  # Simulate command execution
-    screen.blit(text_surface, text_rect)  # Draw text
         ###################################################################
         
     
