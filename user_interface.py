@@ -18,7 +18,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Drone GUI")
 
 background_image = pygame.image.load("icons/background.png")  
-background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Scale it to fit
+background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  #Scale it to fit
 
 icon_height = 32
 icon_width = 140
