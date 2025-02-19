@@ -210,7 +210,8 @@ class Interface:
 
 
                 if self.run_button.check_click(event):
-                    print("Executing") # Placeholder for button click, may need to connect with runtime team for more robust integration
+                    commands = [block.action for block in sorted(self.used_blocks, key=lambda b: b.y, reverse=True)]
+                    print("Executing Commands:", commands)
 
             # BLITTING
             self.draw()
