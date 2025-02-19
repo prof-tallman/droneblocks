@@ -251,6 +251,9 @@ class Interface:
                         block.y = self.block_bottom - (i * (block.height + 10))
                         block.x = self.COMMAND_SIZE[0] + 20
                         continue
+                    else:
+                        block.x = self.COMMAND_SIZE[0] + 20
+                        continue
 
                 else:
                     block.y = self.used_blocks[i-1].y - block.height - 10
