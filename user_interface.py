@@ -56,6 +56,7 @@ command_list = ScrollableCommandList(commands, screen, widthRatio=0.12, height=4
 
 running = True
 while running:  
+    pygame.draw.rect(screen, BACKGROUND_COLOR, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)) #Replace this line with drone camera feed and logo
     screen.blit(background_image, (0, 0))  #Render background PNG
     screen.blit(battery_image, (1090, 47)) #Render battery status icon
     screen.blit(temperature_image, (1090, 82)) #Render temp status icon
