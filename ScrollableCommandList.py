@@ -27,57 +27,49 @@ class ScrollableCommandList:
         self.scrollY = 0  #Var to keep track of scrolling
         self.maxScroll = max(0, len(commandList) * (self.blockSize + self.blockSpacing) - self.height)  #Ensures scrolling stops when last block in list is reached
         self.font = pygame.font.Font(None, 30)
-
-        #Load PNG icons and store in dictionary
-        self.icon_images = {}
-        for i, command in enumerate(commandList):
-            
-            if i == 0: #PNG name must match command taken in inside constructor for this to work
-                image_path = f"icons/{command}_red.png" 
-            else:
-                image_path = f"icons/{command}.png" 
-            try:
-                img = pygame.image.load(image_path).convert_alpha()
-                self.icon_images[command] = pygame.transform.smoothscale(img, (self.blockSize, self.blockSize))
-            except pygame.error:
-                print(f"Warning: Could not load {image_path}")
-                self.icon_images[command] = None  #If image is missing, set to None
             
     def draw(self):
         """Renders the command list on the screen at (self.x, self.y) with fading opacity."""
         #Recalculate maxScroll
         self.maxScroll = max(0, len(self.commandQueue) * (self.blockSize + self.blockSpacing) - self.height)
-
+    
         #Determine which commands to display based on scroll position
         startIndex = self.scrollY // (self.blockSize + self.blockSpacing)
         maxVisibleCommands = (self.height + self.blockSize + self.blockSpacing - 1) // (self.blockSize + self.blockSpacing)
-
+    
         visibleCommands = list(self.commandQueue)[startIndex:startIndex + maxVisibleCommands]
+        
+        if self.commandQueue: #Get first command in queue
+            first_command = self.commandQueue[0] 
+        else: 
+            first_command = None
 
+
+    
         for i, command in enumerate(visibleCommands):
             blockY = self.y + i * (self.blockSize + self.blockSpacing)
-
-            #Opacity Calculation for each block
-            opacity = max(20, 255 - (i * 120))  #Decrease alpha value for each command in list. If below 0, lowest it can get is 20
     
-
-            #Load corresponding image
-            img = self.icon_images.get(command, None)
-            
-            #Ensures that the first item always uses red version if available
-            if i == 0:
-                red_image_path = f"icons/{command}_red.png"
-                try:
-                    img = pygame.image.load(red_image_path).convert_alpha()
-                    img = pygame.transform.smoothscale(img, (self.blockSize, self.blockSize))
-                except pygame.error:
-                    pass  #If red version is not available, move on and use regular image
-                    
+            #Opacity Calculation for each block
+            opacity = max(20, 255 - (i * 120))  #Decrease alpha value for each command in list. Lowest it can get is 20
+    
+            #Load red icon only for the first command in the entire queue
+            if command == first_command and startIndex + i == 0:
+                image_path = f"icons/{command}_red.png"
+            else:
+                image_path = f"icons/{command}.png"
+    
+            try:
+                img = pygame.image.load(image_path).convert_alpha()
+                img = pygame.transform.smoothscale(img, (self.blockSize, self.blockSize))
+            except pygame.error:
+                img = None  #If image is missing, set to None
+    
             if img:
                 #Apply opacity
                 img = img.copy()
                 img.fill((255, 255, 255, opacity), special_flags=pygame.BLEND_RGBA_MULT)
                 self.screen.blit(img, (self.x, blockY))
+
 
     def dequeue_command(self):
         """Removes the first command from the queue when executed and resets scroll position to top of list."""
