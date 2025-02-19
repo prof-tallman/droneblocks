@@ -1,8 +1,52 @@
 import pygame
 import sys
 from ScrollableCommandList import ScrollableCommandList
+import threading
+import queue
+from djitellopy import Tello
+import cv2
+from take_commands import DroneFlight
 
 pygame.init()
+
+# Drone setup
+tello = Tello()
+tello.connect()
+
+# Initiate class for giving drone commands
+flight = DroneFlight(tello)
+
+# Camera setup
+tello.stream_on()
+
+frame_queue = queue.Queue(maxsize=1)  # Limit queue size to avoid lag
+
+def camera_thread():
+    """ Thread function to continuously update the camera frame """
+    while True:
+        frame = tello.get_frame_read().frame
+        if frame is not None:
+            # Rotate frame to match display
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            # Put the frame in the queue (overwrite old frame if queue is full)
+            if frame_queue.full():
+                frame_queue.get()
+            frame_queue.put(frame)
+
+# Start the camera thread
+camera_thread = threading.Thread(target=camera_thread, daemon=True)
+camera_thread.start()
+
+# How to run camera in game loop
+"""
+if not frame_queue.empty():
+            frame = frame_queue.get()
+            # Convert the frame to a Pygame surface
+            webcam_surface = pygame.surfarray.make_surface(frame)
+            webcam_rect = webcam_surface.get_rect()
+            webcam_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+            screen.blit(webcam_surface, webcam_rect)
+"""
 
 #Colors
 BACKGROUND_COLOR = (173, 216, 230)
