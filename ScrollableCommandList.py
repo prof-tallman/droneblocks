@@ -51,6 +51,7 @@ class ScrollableCommandList:
     
             #Opacity Calculation for each block
             opacity = max(20, 255 - (i * 120))  #Decrease alpha value for each command in list. Lowest it can get is 20
+            newBlocksize = max(50, self.blockSize - (i * 10))
     
             #Load red icon only for the first command in the entire queue
             if command == first_command and startIndex + i == 0:
@@ -60,7 +61,7 @@ class ScrollableCommandList:
     
             try:
                 img = pygame.image.load(image_path).convert_alpha()
-                img = pygame.transform.smoothscale(img, (self.blockSize, self.blockSize))
+                img = pygame.transform.smoothscale(img, (newBlocksize, newBlocksize))
             except pygame.error:
                 img = None  #If image is missing, set to None
     
@@ -68,7 +69,7 @@ class ScrollableCommandList:
                 #Apply opacity
                 img = img.copy()
                 img.fill((255, 255, 255, opacity), special_flags=pygame.BLEND_RGBA_MULT)
-                self.screen.blit(img, (self.x, blockY))
+                self.screen.blit(img, (self.x + (self.blockSize - newBlocksize) // 2, blockY)) #Needed to offset change in x when block size changes
 
 
     def dequeue_command(self):
