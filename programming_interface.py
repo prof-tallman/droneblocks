@@ -121,6 +121,9 @@ class Interface:
             # EVENT HANDLING
             for event in pygame.event.get():
 
+                if event.type == pygame.QUIT:
+                    self.running = False #to actually exit the loop
+
                 # dragging blocks
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for block in self.blocks:
@@ -205,8 +208,6 @@ class Interface:
                     elif event.y < 0: # scroll down
                       self.command_scroll_y = min(self.command_scroll_y + 30, self.COMMAND_SIZE[1])
 
-                    elif event.type == pygame.QUIT:
-                        self.running = False #to actually exit the loop
 
                 if self.run_button.check_click(event):
                     print("Executing") # Placeholder for button click, may need to connect with runtime team for more robust integration
