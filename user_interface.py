@@ -7,11 +7,12 @@ import queue
 from djitellopy import Tello
 import cv2
 from take_commands import DroneFlight
+import math
 
 pygame.init()
 
 # # Drone setup
-# tello = Tello()
+tello = Tello()
 # tello.connect()
 
 # # Initiate class for giving drone commands
@@ -64,7 +65,7 @@ BACKGROUND_COLOR = (173, 216, 230)
 BUTTON_COLOR = (200, 200, 200)
 BUTTON_HOVER_COLOR = (170, 170, 170)
 BUTTON_CLICK_COLOR = (100, 100, 100)
-TEXT_COLOR = (0, 0, 0)
+TEXT_COLOR = (255, 255, 255)
 
 #Screen Setup
 SCREEN_WIDTH = 1280
@@ -133,6 +134,30 @@ while running:
     mouse_pos = pygame.mouse.get_pos()
     mouse_pressed = pygame.mouse.get_pressed()
     
+    #Get Drone stats
+    try:
+        battery_text = f"Battery: {tello.get_battery()}%"
+    except Exception:
+        battery_text = "na"
+    try:
+        temperature_text = f"{tello.get_temperature()} °C"
+    except Exception:
+        temperature_text = "na"
+    try:
+        speed_x = tello.get_speed_x()
+        speed_y = tello.get_speed_y()
+        speed_z = tello.get_speed_z()
+        
+        speed = math.sqrt(speed_x**2 + speed_y**2 + speed_z**2)  #Calculate magnitude
+        speed = round(speed, 2)
+        speed_text = f"{speed} m/s"
+    except Exception:
+        speed_text = "na"
+        
+    #Draw drone stats
+    draw_text(battery_text, 1175, 61, size=17)
+    draw_text(temperature_text, 1175, 96, size=17)
+    draw_text(speed_text, 1175, 131, size=17)
     #Check if the cursor should change on button hover
     hovering_over_button = any(button.is_hovered(mouse_pos) for button in buttons)
     if hovering_over_button:
@@ -162,6 +187,8 @@ while running:
         if event.type == pygame.KEYDOWN: 
             if event.key == pygame.K_SPACE:
                 command_list.dequeue_command()  # Simulate command execution
+            if event.key == pygame.K_ESCAPE:
+                running = False
         ###################################################################
         
     
