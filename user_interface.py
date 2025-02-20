@@ -8,8 +8,13 @@ from djitellopy import Tello
 import cv2
 from take_commands import DroneFlight
 import math
+from Custom_Video_Player import play_static_video
 
 pygame.init()
+pygame.mixer.init()
+click_sound = pygame.mixer.Sound("sounds/button_press.wav")
+alert_sound = pygame.mixer.Sound("sounds/alert.mp3")
+startup_sound = pygame.mixer.Sound("sounds/startup.mp3")
 
 # # Drone setup
 tello = Tello()
@@ -51,13 +56,16 @@ if not frame_queue.empty():
 """
 
 
-def recording_action():
-    print("Recording Button clicked")
-    
 def stop_action():
+    pygame.mixer.Sound.play(alert_sound)
     print("Stop Button clicked")
     
+def recording_action():
+    pygame.mixer.Sound.play(click_sound)
+    print("Recording Button clicked")
+    
 def camera_action():
+    pygame.mixer.Sound.play(click_sound)
     print("Camera Button Clicked")
 
 #Colors
@@ -118,7 +126,10 @@ commands = ["takeoff", "fly_forward", "fly_up", "fly_down", "fly_forward",
             "fly_up", "fly_down", "fly_forward", "fly_up", "fly_down", "land"]
 
 command_list = ScrollableCommandList(commands, screen, widthRatio=0.12, height=400, x=120, y=190)
+pygame.mixer.Sound.play(startup_sound)
 
+#Play the startup video behind the UI
+play_static_video("media/static.mp4", screen, SCREEN_WIDTH, SCREEN_HEIGHT, background_image)
 running = True
 while running:  
     pygame.draw.rect(screen, BACKGROUND_COLOR, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)) #Replace this line with drone camera feed and logo
