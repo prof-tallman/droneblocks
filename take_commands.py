@@ -69,3 +69,38 @@ class DroneFlight():
         # Hover
         else:
             time.sleep(3)
+
+    # testing
+    def test_command(self, command):
+
+        # Cardinal Directions
+        if command.lower() == "fly_forward":
+            print("forward")
+        elif command.lower() == "fly_backward":
+            print("backward")
+        elif command.lower() == "fly_left":
+            print("left")
+        elif command.lower() == "fly_right":
+            print("right")
+
+        # Up / Down
+        elif command.lower() == "fly_up":
+            print("up")
+        elif command.lower() == "fly_down":
+            print("down")
+
+        # Rotate
+        elif command.lower() == "rotate_right":
+            print("cw")
+        elif command.lower() == "rotate_left":
+            print("ccw")
+
+        # Takeoff / Land
+        elif command.lower() == "takeoff":
+            print("takeoff")
+        elif command.lower() == "land":
+            print("land")
+
+        # Hover
+        else:
+            time.sleep(3)
