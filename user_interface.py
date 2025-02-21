@@ -1,5 +1,4 @@
 import pygame
-import sys
 from ScrollableCommandList import ScrollableCommandList
 from CustomButton import Button
 import threading
@@ -10,6 +9,7 @@ from take_commands import DroneFlight
 import math
 from Custom_Video_Player import play_static_video
 
+
 def run_user_interface(commands):
     pygame.init()
     pygame.mixer.init()
@@ -17,37 +17,57 @@ def run_user_interface(commands):
     alert_sound = pygame.mixer.Sound("sounds/alert.mp3")
     startup_sound = pygame.mixer.Sound("sounds/startup.mp3")
     
+    global camera_toggle
     camera_toggle = True
-    # Drone setup
+    #Drone setup
     tello = Tello()
     tello.connect()
     
-    # Camera setup
-    tello.streamon()
+    #Camera setup
+    tello.streamon()  
+    frame_queue = queue.Queue(maxsize=1)  #Limit queue size to avoid lag
     
-    frame_queue = queue.Queue(maxsize=1)  # Limit queue size to avoid lag
-    global camera_running
-    camera_running = True  #Flag to stop the camera thread
+    #Thread control flags
+    camera_running = threading.Event()
+    camera_running.set()
+
+    command_thread_running = threading.Event()
+    command_thread_running.set()
+    
     def camera_thread():                                                                                                                                    
         """ Thread function to continuously update the camera frame """
-        global camera_running
-        while camera_running:
+        while camera_running.is_set():
             frame = tello.get_frame_read().frame
             if frame is not None:
-                # Rotate frame to match display
+                #Rotate frame to match display
                 frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                frame = cv2.resize(frame, (585, 1040))  # Change (width, height)
+                frame = cv2.resize(frame, (585, 1040))  #Change (width, height)
                 frame = cv2.flip(frame, 0) #Flip about y axis
     
-                # Put the frame in the queue (overwrite old frame if queue is full)
+                #Put the frame in the queue (overwrite old frame if queue is full)
                 if frame_queue.full():
                     frame_queue.get()
                 frame_queue.put(frame)
     
-    # Start the camera thread
+    #Start the camera thread
     camera_thread = threading.Thread(target=camera_thread, daemon=True)
     camera_thread.start()
     
+
+    def execute_commands(executor, command_list):
+        """Executes all commands sequentially, ensuring one command finishes before starting the next."""
+        
+        while not command_list.is_empty() and command_thread_running.is_set():  #Run while there are commands left
+                current_command = command_list.get_current_command()  #Get the next command
+                if current_command:
+                    print(f"Executing command: {current_command}")
+                    executor.drone_command(current_command)  #Execute the command
+                    #executor.test_command(current_command) #Uncomment and replace above command to run without actually moving drone to test
+                    command_list.dequeue_command()
+                    
+        print("All commands executed.")
+
+        
     def stop_action():
         pygame.mixer.Sound.play(alert_sound)
         print("Stop Button clicked")
@@ -113,6 +133,12 @@ def run_user_interface(commands):
     
     #Play the startup video behind the UI
     play_static_video("media/static.mp4", screen, SCREEN_WIDTH, SCREEN_HEIGHT, background_image)
+    #Create a DroneFlight instance
+    executor = DroneFlight(tello)
+    
+    #Start automatic execution in a background thread
+    command_thread = threading.Thread(target=execute_commands, args=(executor, command_list), daemon=True)
+    command_thread.start()
     running = True
     
     try:
@@ -178,10 +204,10 @@ def run_user_interface(commands):
                         
                 if event.type == pygame.MOUSEWHEEL:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
-                    if command_list.is_mouse_inside(mouse_x, mouse_y):  # Only scroll if inside the box
-                        if event.y > 0:  # Scroll up
+                    if command_list.is_mouse_inside(mouse_x, mouse_y):  #Only scroll if inside the box
+                        if event.y > 0:  #Scroll up
                             command_list.handle_scroll("up")
-                        elif event.y < 0:  # Scroll down
+                        elif event.y < 0:  #Scroll down
                             command_list.handle_scroll("down")
                             
                 recording_button.handle_event(event)
@@ -194,11 +220,11 @@ def run_user_interface(commands):
                     if event.key == pygame.K_SPACE:
                         next_command = command_list.dequeue_command()  #Simulate command execution
                         print(next_command)
+                        print(command_list.is_empty())
                     if event.key == pygame.K_ESCAPE:
                         running = False
                 ###################################################################
-                
-            
+                      
             #Draw Command List
             command_list.draw()
             pygame.display.flip()
@@ -207,10 +233,16 @@ def run_user_interface(commands):
         
     finally:
         print("Closing program...")
-        #Stop the camera thread
-        camera_running = False 
-        camera_thread.join()  # Wait for thread to exit
+        #stop threads
+        camera_running.clear()
+        command_thread_running.clear()
+        #Wait for threads to exit
+        if camera_thread.is_alive():
+            camera_thread.join(timeout=2)  # Max 2 seconds wait
         
+        if command_thread.is_alive():
+            command_thread.join(timeout=2)
+
         try:
             tello.streamoff()
             tello.end()
@@ -218,10 +250,10 @@ def run_user_interface(commands):
             print(f"Error closing Tello connection: {e}")
             
         pygame.quit()
-        sys.exit()
         
 if __name__ == "__main__":
-    commands = ["takeoff", "fly_forward", "fly_up", "fly_down", "fly_forward", 
-                "fly_up", "fly_down", "fly_forward", "fly_up", "fly_down", "land"]
+    commands = ["takeoff", "fly_forward", "fly_forward", "fly_right", "fly_left", "fly_backward", "fly_backward", "land"]
+    #commands = ["takeoff", "fly_forward", "fly_up", "fly_down", "fly_forward", 
+    #        "fly_up", "fly_down", "fly_forward", "fly_up", "fly_down", "land"]
     run_user_interface(commands)
     
