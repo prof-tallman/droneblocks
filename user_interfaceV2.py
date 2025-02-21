@@ -8,7 +8,7 @@ from djitellopy import Tello
 import cv2
 from take_commands import DroneFlight
 from Custom_Video_Player import play_static_video
-import time # needed for time.sleep(1) with autoscroll commands
+import time #needed for time.sleep(1) with autoscroll commands
 
 class DroneControlApp:
     def __init__(self, commands):
@@ -35,7 +35,7 @@ class DroneControlApp:
 
         self.command_list = ScrollableCommandList(self.commands, self.screen, widthRatio=0.12, height=400, x=120, y=190)
         pygame.mixer.Sound.play(self.startup_sound)
-        play_static_video("media/static.mp4", self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT, self.background_image)
+        
 
         self.stop_button = Button(400, 600, 90, 90, self.stop_action, "icons/EStopCommandBlock.png")
         self.recording_button = Button(525, 600, 90, 90, self.recording_action, "icons/StartRecordingCommandBlock.png", "icons/RecordingOnCommandBlock.png")
@@ -64,7 +64,6 @@ class DroneControlApp:
             frame = self.tello.get_frame_read().frame
             if frame is not None:
                 frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-                frame = cv2.resize(frame, (585, 1040))
                 frame = cv2.flip(frame, 0)
                 if self.frame_queue.full():
                     self.frame_queue.get()
@@ -73,6 +72,7 @@ class DroneControlApp:
     def run(self):
 
         self.camera_thread.start()
+        play_static_video("media/static.mp4", self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT, self.background_image)
 
         try:
             while self.running:
