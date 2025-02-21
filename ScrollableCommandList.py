@@ -92,6 +92,12 @@ class ScrollableCommandList:
         """Checks if the mouse is within the command list box."""
         return self.x <= mouseX <= self.x + self.width and self.y <= mouseY <= self.y + self.height
 
+    def get_current_command(self):
+        """Returns the currently highlighted command based on scroll position."""
+        index = self.scrollY // (self.blockSize + self.blockSpacing)
+        if 0 <= index < len(self.commandQueue):
+            return list(self.commandQueue)[index]
+        return None
 
 #Testing for module. Press space to simulate removing a block from the commandList
 if __name__ == "__main__":
