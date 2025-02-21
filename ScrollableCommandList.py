@@ -28,6 +28,10 @@ class ScrollableCommandList:
         self.maxScroll = max(0, len(commandList) * (self.blockSize + self.blockSpacing) - self.height)  #Ensures scrolling stops when last block in list is reached
         self.font = pygame.font.Font(None, 30)
             
+    def is_empty(self):
+        """Returns True if the command queue is empty, otherwise False."""
+        return not self.commandQueue
+
     def draw(self):
         """Renders the command list on the screen at (self.x, self.y) with fading opacity."""
         #Recalculate maxScroll
@@ -73,16 +77,19 @@ class ScrollableCommandList:
 
 
     def dequeue_command(self):
-        """Removes the first command from the queue when executed and resets scroll position to top of list. Optionally returns the next command in queue"""
+        """Removes the first command from the queue when executed and resets scroll position to top of list. Returns the removed command."""
         if self.commandQueue:
-            self.commandQueue.popleft()  #Remove first command in queue
+            prev_command = self.commandQueue.popleft()  #Remove first command in queue
             #Recalculate max scroll based on updated list
             self.maxScroll = max(0, len(self.commandQueue) * (self.blockSize + self.blockSpacing) - self.height)
             #Prevent scrollY from being greater than maxScroll
             self.scrollY = 0
             
-            return self.commandQueue[0] if self.commandQueue else None  #Return next command or None
+            return prev_command #Return next command or None
         return None  #Return None if the queue is already empty
+    
+    def get_first_command(self):
+        return self.commandQueue[0] if self.commandQueue else None  #Return next command or None
 
     def handle_scroll(self, direction):
         """Handles scrolling up and down within the command list. If you would like to scroll up, pass 'up' to method."""
