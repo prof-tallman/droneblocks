@@ -58,7 +58,7 @@ def run_user_interface(commands):
         """Executes all commands sequentially, ensuring one command finishes before starting the next."""
         
         while not command_list.is_empty() and command_thread_running.is_set():  #Run while there are commands left
-                current_command = command_list.get_current_command()  #Get the next command
+                current_command = command_list.get_first_command()  #Get the next command
                 if current_command:
                     print(f"Executing command: {current_command}")
                     executor.drone_command(current_command)  #Execute the command
