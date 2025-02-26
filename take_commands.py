@@ -56,7 +56,7 @@ class DroneFlight():
 
         # Rotate
         elif command.lower() == "rotate_right":
-            self.drone.rotate_clowckwise(self.rotate)
+            self.drone.rotate_clockwise(self.rotate)
         elif command.lower() == "rotate_left":
             self.drone.rotate_counter_clockwise(self.rotate)
 

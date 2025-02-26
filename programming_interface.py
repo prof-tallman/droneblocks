@@ -1,6 +1,7 @@
 # Importing the library
 import pygame
 import os
+from user_interface import run_user_interface
  
 class Button:
     def __init__(self, x, y, width, height, text, color, hover_color):
@@ -42,8 +43,8 @@ class Interface:
 
         # dictionary of icons for each block paired with their action name and relative path to icon folder
         self.icons = {
-            "rotate_ccw": pygame.image.load(os.path.join(self.icons_path, "rotate_left.png")),
-            "rotate_cw": pygame.image.load(os.path.join(self.icons_path, "rotate_right.png")),
+            "rotate_left": pygame.image.load(os.path.join(self.icons_path, "rotate_left.png")),
+            "rotate_right": pygame.image.load(os.path.join(self.icons_path, "rotate_right.png")),
             "fly_forward": pygame.image.load(os.path.join(self.icons_path, "fly_forward.png")),
             "fly_backward": pygame.image.load(os.path.join(self.icons_path, "fly_backward.png")),
             "fly_left": pygame.image.load(os.path.join(self.icons_path, "fly_left.png")),
@@ -75,9 +76,9 @@ class Interface:
 
  
         self.blocks = [
-            Block(25, 200, 'rotate_ccw', icon=self.icons["rotate_ccw"]),
+            Block(25, 200, 'rotate_left', icon=self.icons["rotate_left"]),
             Block(150, 200, 'fly_forward', icon=self.icons["fly_forward"]),
-            Block(275, 200, 'rotate_cw', icon=self.icons["rotate_cw"]),
+            Block(275, 200, 'rotate_right', icon=self.icons["rotate_right"]),
             Block(25, 325, 'fly_left', icon=self.icons["fly_left"]),
             Block(150, 325, 'fly_backward', icon=self.icons["fly_backward"]),
             Block(275, 325, 'fly_right', icon=self.icons["fly_right"]),
@@ -211,7 +212,8 @@ class Interface:
 
                 if self.run_button.check_click(event):
                     commands = [block.action for block in sorted(self.used_blocks, key=lambda b: b.y, reverse=True)]
-                    print("Executing Commands:", commands)
+                    print("Calling run_user_interface")
+                    run_user_interface(commands) #Runs user_interface module
 
             # BLITTING
             self.draw()
