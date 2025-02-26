@@ -16,6 +16,7 @@ def run_user_interface(commands):
     click_sound = pygame.mixer.Sound("sounds/button_press.wav")
     alert_sound = pygame.mixer.Sound("sounds/alert.mp3")
     startup_sound = pygame.mixer.Sound("sounds/startup.mp3")
+    command_executed = pygame.mixer.Sound("sounds/command_executed.mp3")
     
     global camera_toggle
     camera_toggle = True
@@ -61,6 +62,7 @@ def run_user_interface(commands):
                 current_command = command_list.get_first_command()  #Get the next command
                 if current_command:
                     print(f"Executing command: {current_command}")
+                    pygame.mixer.Sound.play(command_executed)
                     executor.drone_command(current_command)  #Execute the command
                     #executor.test_command(current_command) #Uncomment and replace above command to run without actually moving drone to test
                     command_list.dequeue_command()
@@ -71,6 +73,12 @@ def run_user_interface(commands):
     def stop_action():
         pygame.mixer.Sound.play(alert_sound)
         print("Stop Button clicked")
+        command_thread_running.clear()  #Stop the command execution thread
+        try:
+            tello.send_rc_control(0, 0, 0, 0)  #Stop all movement (left_right, forward_back, up_down, yaw)
+            tello.land()  #Command the drone to land
+        except Exception as e:
+            print(f"Error during landing: {e}")
         
     def recording_action():
         pygame.mixer.Sound.play(click_sound)
@@ -164,7 +172,6 @@ def run_user_interface(commands):
             
             #Get Mouse Position
             mouse_pos = pygame.mouse.get_pos()
-            mouse_pressed = pygame.mouse.get_pressed()
             
             #Get Drone stats
             try:
@@ -213,17 +220,6 @@ def run_user_interface(commands):
                 recording_button.handle_event(event)
                 stop_button.handle_event(event)
                 camera_button.handle_event(event)
-                
-                ###################################################################
-                #For testing purposes will be removed in final implimentation
-                if event.type == pygame.KEYDOWN: 
-                    if event.key == pygame.K_SPACE:
-                        next_command = command_list.dequeue_command()  #Simulate command execution
-                        print(next_command)
-                        print(command_list.is_empty())
-                    if event.key == pygame.K_ESCAPE:
-                        running = False
-                ###################################################################
                       
             #Draw Command List
             command_list.draw()
@@ -238,7 +234,7 @@ def run_user_interface(commands):
         command_thread_running.clear()
         #Wait for threads to exit
         if camera_thread.is_alive():
-            camera_thread.join(timeout=2)  # Max 2 seconds wait
+            camera_thread.join(timeout=2)  #Max 2 seconds wait
         
         if command_thread.is_alive():
             command_thread.join(timeout=2)
