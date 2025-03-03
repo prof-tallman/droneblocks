@@ -92,6 +92,8 @@ class Interface:
         # Blocks that are currently on the programming side
         self.used_blocks = []
         self.current_block = None
+        self.has_land = False
+        self.has_takeoff = False
 
         self.std_block_size = (100, 100)
 
@@ -129,16 +131,24 @@ class Interface:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for block in self.blocks:
                         if block.surface_rectangle.collidepoint(event.pos):
+
+                            # error handling to require takeoff/land and prevent multiple takeoff/land 
+                            if block.action == "takeoff" and self.has_takeoff:
+                                print("Already have takeoff")
+                                continue
+                            if block.action == "land" and self.has_land:
+                                print("Already have land")
+                                continue
+                            if block.action != "takeoff" and not self.has_takeoff:
+                                print("Need to takeoff first")
+                                continue
+
                             # NOTE: Creates a copy and adds it to the in use blocks
                             copy = block.copy()
                             self.current_block = copy
 
-                            # Commented this out since we won't want to be moving blocks that are on display
-                            # block.dragging = True
-
                     for block in self.used_blocks:
                         # print((block.x, block.y), event.pos)
-                        # block.dragging = True
                         if block.surface_rectangle.collidepoint(event.pos):
                             block.dragging = True
 
@@ -157,7 +167,14 @@ class Interface:
 
                             self.current_block.x = self.COMMAND_SIZE[0]
                             self.current_block.y = self.block_bottom
+                            
                             self.used_blocks.append(self.current_block.copy(drag=False, id=len(self.used_blocks)))
+
+                            # validate and update takeoff/land status
+                            actions = [block.action for block in self.used_blocks]
+                            self.has_land = True if "land" in actions else False
+                            self.has_takeoff = True if "takeoff" in actions else False
+
                             self.current_block.dragging = False
                             self.current_block = None
 
@@ -185,7 +202,6 @@ class Interface:
                 elif event.type == pygame.MOUSEMOTION:
                     for block in self.used_blocks:
                         if block.dragging:
-                            # if block.surface_rectangle.collidepoint(event.pos):
                             mouse_x, mouse_y = event.pos
                             block.x = mouse_x - block.width // 2
                             block.y = mouse_y - block.height // 2
@@ -199,8 +215,6 @@ class Interface:
 
                 # scrolling command surface
                 elif event.type == pygame.MOUSEWHEEL:
-                    #for block in self.used_blocks:
-                    #   block.scrolling = True
                     if self.used_blocks:
                         self.used_blocks[0].y += event.y*20   
 
@@ -295,8 +309,6 @@ class Block:
             surface (pygame.Surface): The surface representing the block.
             surface_rectangle (pygame.Rect): The rectangle defining the block's position and size.
         """
-        color = (255,255,255)
-        
         self.x = x
         self.y = y
         self.width, self.height = 100, 100
@@ -330,7 +342,6 @@ class Block:
             screen.blit(scaled_icon, icon_rect.topleft)  # Blit icon at new position
         
         self.check_hover(pygame.mouse.get_pos())
-        # self.check_click(pygame.mouse.get_pos())
 
         # temporary font so that we can see the names of the blocks
         temp_font = pygame.font.SysFont('Arial', 14).render(self.action, True, (0, 0, 0))
