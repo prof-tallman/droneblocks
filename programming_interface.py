@@ -39,7 +39,7 @@ class Interface:
         self.background_color = (0, 0, 50)
 
         # relative path to icon folder
-        self.icons_path = os.path.join(os.path.dirname(__file__), 'Icons') 
+        self.icons_path = os.path.join(os.path.dirname(__file__), 'icons') 
 
         # dictionary of icons for each block paired with their action name and relative path to icon folder
         self.icons = {
