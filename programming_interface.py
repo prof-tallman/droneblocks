@@ -153,10 +153,12 @@ class Interface:
                             block.dragging = True
 
                 elif event.type == pygame.MOUSEBUTTONUP:
-
+                    print("MOUSE BUTTON UP")
                     if self.current_block:
                         # Makes sure that the block gets placed on the program side (right)
+
                         if event.pos[0] >= self.COMMAND_SIZE[0]+self.current_block.width//2:
+
                             # Moving this operation to draw
                             """print("Moving to ", self.next_position)
                             self.next_position[1] -= self.std_block_size[1]
@@ -226,8 +228,11 @@ class Interface:
 
                 if self.run_button.check_click(event):
                     commands = [block.action for block in sorted(self.used_blocks, key=lambda b: b.y, reverse=True)]
-                    print("Calling run_user_interface")
-                    run_user_interface(commands) #Runs user_interface module
+                    if commands[-1] == 'land':
+                        print("Calling run_user_interface")
+                        run_user_interface(commands) #Runs user_interface module
+                    else:
+                        print("Still needs a land block!")
 
             # BLITTING
             self.draw()
@@ -277,8 +282,16 @@ class Interface:
                     block.y = self.used_blocks[i-1].y - block.height - 10
                     block.x = self.COMMAND_SIZE[0] + 20
 
+        starts_with_takeoff = len(self.used_blocks)>0
+        if starts_with_takeoff:
+            starts_with_takeoff = self.used_blocks[0].action == 'takeoff'
+
+        for block in self.blocks:
+            block.active= starts_with_takeoff or block.action == 'takeoff'
+
 
         for rect in self.blocks+self.used_blocks:
+            
             rect.blit(self.screen)
 
 
@@ -313,6 +326,7 @@ class Block:
         self.y = y
         self.width, self.height = 100, 100
         self.action = action
+        self.active = True
         self.dragging = False
         self.id = id
         self.scrolling = False
@@ -336,12 +350,15 @@ class Block:
         screen.blit(self.surface, (self.x, self.y))
 
         # Draws the icons dynamically
-        if self.icon:
+        if self.icon and self.active:
             scaled_icon = pygame.transform.scale(self.icon, (self.width, self.height))  # Scale icon
             icon_rect = scaled_icon.get_rect(center=(self.x + self.width // 2, self.y + self.height // 2))  # Center icon
             screen.blit(scaled_icon, icon_rect.topleft)  # Blit icon at new position
-        
+
         self.check_hover(pygame.mouse.get_pos())
+
+        self.surface.fill((100,100,200))
+            
 
         # temporary font so that we can see the names of the blocks
         temp_font = pygame.font.SysFont('Arial', 14).render(self.action, True, (0, 0, 0))
