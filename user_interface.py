@@ -8,6 +8,8 @@ import cv2
 from take_commands import DroneFlight
 import math
 from Custom_Video_Player import play_static_video
+import os
+import time
 
 
 def run_user_interface(commands):
@@ -35,20 +37,32 @@ def run_user_interface(commands):
     command_thread_running = threading.Event()
     command_thread_running.set()
     
+    global recording, video_writer
+    recording = False
+    video_writer = None
+    
     def camera_thread():                                                                                                                                    
         """ Thread function to continuously update the camera frame """
+        global recording, video_writer
+        
         while camera_running.is_set():
             frame = tello.get_frame_read().frame
             if frame is not None:
                 #Rotate frame to match display
-                frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) This code changes color of recorded video
                 frame = cv2.resize(frame, (585, 1040))  #Change (width, height)
                 frame = cv2.flip(frame, 0) #Flip about y axis
     
+                if recording and video_writer is not None:
+                    video_writer.write(frame)
+                    
                 #Put the frame in the queue (overwrite old frame if queue is full)
                 if frame_queue.full():
                     frame_queue.get()
                 frame_queue.put(frame)
+                
+            time.sleep(1/30)
     
     #Start the camera thread
     camera_thread = threading.Thread(target=camera_thread, daemon=True)
@@ -81,8 +95,26 @@ def run_user_interface(commands):
             print(f"Error during landing: {e}")
         
     def recording_action():
+        global recording, video_writer
         pygame.mixer.Sound.play(click_sound)
-        print("Recording Button clicked")
+
+        if not recording:
+            print("Starting Recording...")
+
+            # Save file to Desktop
+            desktop_path = os.path.expanduser("~/Desktop")
+            video_path = os.path.join(desktop_path, "drone_footage.mp4")
+
+            # Set up video writer (H.264 codec for MP4)
+            fourcc = cv2.VideoWriter_fourcc(*'H264')  
+            video_writer = cv2.VideoWriter(video_path, fourcc, 30.0, (585, 1040))
+            recording = True
+        else:
+            print("Stopping Recording...")
+            recording = False
+            if video_writer is not None:
+                video_writer.release()
+                video_writer = None
         
     def camera_action():
         global camera_toggle
