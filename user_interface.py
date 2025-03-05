@@ -49,7 +49,7 @@ def run_user_interface(commands):
             frame = tello.get_frame_read().frame
             if frame is not None:
                 #Rotate frame to match display
-                frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) This code changes color of recorded video
                 frame = cv2.resize(frame, (585, 1040))  #Change (width, height)
                 frame = cv2.flip(frame, 0) #Flip about y axis
