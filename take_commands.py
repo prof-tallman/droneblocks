@@ -8,14 +8,8 @@ class DroneFlight():
         self.drone = drone
 
         # set speed and time flying
-        self.distance = 50
-        self.rotation = 45
-        self.set_time = 2 # seconds
-
-        # Instead of using a loop for going a certain time, we can set a predetermined distance and speed,
-        # and have the drone go that distance like 50cm * 2 seconds for 50cm/s over 2 seconds
-        self.speed = self.distance * self.set_time
-        self.rotate = self.rotation
+        self.distance = 95
+        self.rotate = 45
 
     """
     
@@ -40,19 +34,19 @@ class DroneFlight():
 
         # Cardinal Directions
         if command.lower() == "fly_forward":
-            self.drone.move_forward(self.speed)
+            self.drone.move_forward(self.distance)
         elif command.lower() == "fly_backward":
-            self.drone.move_back(self.speed)
+            self.drone.move_back(self.distance)
         elif command.lower() == "fly_left":
-            self.drone.move_left(self.speed)
+            self.drone.move_left(self.distance)
         elif command.lower() == "fly_right":
-            self.drone.move_right(self.speed)
+            self.drone.move_right(self.distance)
 
         # Up / Down
         elif command.lower() == "fly_up":
-            self.drone.move_up(self.speed)
+            self.drone.move_up(self.distance)
         elif command.lower() == "fly_down":
-            self.drone.move_down(self.speed)
+            self.drone.move_down(self.distance)
 
         # Rotate
         elif command.lower() == "rotate_right":
