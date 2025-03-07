@@ -8,6 +8,7 @@ import cv2
 from take_commands import DroneFlight
 import math
 from Custom_Video_Player import play_static_video
+import time
 
 
 def run_user_interface(commands):

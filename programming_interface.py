@@ -127,6 +127,12 @@ class Interface:
                 if event.type == pygame.QUIT:
                     self.running = False #to actually exit the loop
 
+                if event.type == pygame.MOUSEMOTION:
+                    # validate and update takeoff/land status
+                    actions = [block.action for block in self.used_blocks]
+                    self.has_land = True if "land" in actions else False
+                    self.has_takeoff = True if "takeoff" in actions else False
+
                 # dragging blocks
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for block in self.blocks:
@@ -142,6 +148,11 @@ class Interface:
                             if block.action != "takeoff" and not self.has_takeoff:
                                 print("Need to takeoff first")
                                 continue
+
+                            # validate and update takeoff/land status
+                            actions = [block.action for block in self.used_blocks]
+                            self.has_land = True if "land" in actions else False
+                            self.has_takeoff = True if "takeoff" in actions else False
 
                             # NOTE: Creates a copy and adds it to the in use blocks
                             copy = block.copy()
@@ -171,11 +182,6 @@ class Interface:
                             self.current_block.y = self.block_bottom
                             
                             self.used_blocks.append(self.current_block.copy(drag=False, id=len(self.used_blocks)))
-
-                            # validate and update takeoff/land status
-                            actions = [block.action for block in self.used_blocks]
-                            self.has_land = True if "land" in actions else False
-                            self.has_takeoff = True if "takeoff" in actions else False
 
                             self.current_block.dragging = False
                             self.current_block = None
