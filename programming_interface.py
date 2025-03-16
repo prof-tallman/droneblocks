@@ -43,17 +43,17 @@ class Interface:
 
         # dictionary of icons for each block paired with their action name and relative path to icon folder
         self.icons = {
-            "rotate_left": pygame.image.load(os.path.join(self.icons_path, "rotate_left.png")),
-            "rotate_right": pygame.image.load(os.path.join(self.icons_path, "rotate_right.png")),
-            "fly_forward": pygame.image.load(os.path.join(self.icons_path, "fly_forward.png")),
-            "fly_backward": pygame.image.load(os.path.join(self.icons_path, "fly_backward.png")),
-            "fly_left": pygame.image.load(os.path.join(self.icons_path, "fly_left.png")),
-            "fly_right": pygame.image.load(os.path.join(self.icons_path, "fly_right.png")),
-            "fly_up": pygame.image.load(os.path.join(self.icons_path, "fly_up.png")),
-            "fly_down": pygame.image.load(os.path.join(self.icons_path, "fly_down.png")),
-            "hover": pygame.image.load(os.path.join(self.icons_path, "hover.png")),
-            "takeoff": pygame.image.load(os.path.join(self.icons_path, "takeoff.png")),
-            "land": pygame.image.load(os.path.join(self.icons_path, "land.png")),
+            "rotate_left": pygame.image.load(os.path.join(self.icons_path, "rotate_left_red.png")),
+            "rotate_right": pygame.image.load(os.path.join(self.icons_path, "rotate_right_red.png")),
+            "fly_forward": pygame.image.load(os.path.join(self.icons_path, "fly_forward_red.png")),
+            "fly_backward": pygame.image.load(os.path.join(self.icons_path, "fly_backward_red.png")),
+            "fly_left": pygame.image.load(os.path.join(self.icons_path, "fly_left_red.png")),
+            "fly_right": pygame.image.load(os.path.join(self.icons_path, "fly_right_red.png")),
+            "fly_up": pygame.image.load(os.path.join(self.icons_path, "fly_up_red.png")),
+            "fly_down": pygame.image.load(os.path.join(self.icons_path, "fly_down_red.png")),
+            "hover": pygame.image.load(os.path.join(self.icons_path, "hover_red.png")),
+            "takeoff": pygame.image.load(os.path.join(self.icons_path, "takeoff_red.png")),
+            "land": pygame.image.load(os.path.join(self.icons_path, "land_red.png")),
         }
 
 
@@ -72,21 +72,16 @@ class Interface:
             pygame.draw.line(self.command_surface, color, (0, y), (self.COMMAND_SIZE[0], y))
 
         # Run Button initialization
-        self.run_button = Button(self.SIZE[0] // 2 + 150, self.SIZE[1] - 120, 150, 50, "Execute", (100, 200, 100), (150, 255, 150))
+        self.run_button = Button(self.SIZE[0] // 2 + 300, self.SIZE[1] - 120, 200, 100, "Execute", (100, 200, 100), (150, 255, 150))
 
  
         self.blocks = [
-            Block(25, 200, 'rotate_left', icon=self.icons["rotate_left"]),
-            Block(150, 200, 'fly_forward', icon=self.icons["fly_forward"]),
-            Block(275, 200, 'rotate_right', icon=self.icons["rotate_right"]),
-            Block(25, 325, 'fly_left', icon=self.icons["fly_left"]),
-            Block(150, 325, 'fly_backward', icon=self.icons["fly_backward"]),
-            Block(275, 325, 'fly_right', icon=self.icons["fly_right"]),
-            Block(25, 450, 'fly_up', icon=self.icons["fly_up"]),
-            Block(150, 450, 'hover', icon=self.icons["hover"]),
-            Block(275, 450, 'fly_down', icon=self.icons["fly_down"]),
-            Block(87.5, 575, 'takeoff', icon=self.icons["takeoff"]),
-            Block(212.5, 575, 'land', icon=self.icons["land"])
+            Block(100, 20, 'fly_forward', icon=self.icons["fly_forward"]),
+            Block(100, 190, 'fly_backward', icon=self.icons["fly_backward"]),
+            Block(100, 360, 'land', icon=self.icons["land"]),
+            Block(100, 530, 'takeoff', icon=self.icons["takeoff"]),
+            Block(300, 190, 'fly_up', icon=self.icons["fly_up"]),
+            Block(300, 360, 'fly_down', icon=self.icons["fly_down"]),
         ]
 
         # Blocks that are currently on the programming side
@@ -95,7 +90,7 @@ class Interface:
         self.has_land = False
         self.has_takeoff = False
 
-        self.std_block_size = (100, 100)
+        self.std_block_size = (200, 200)
 
         # The y axis coordiante of the block when it's at the bottom
         self.block_bottom = self.SIZE[1]-self.std_block_size[1]
@@ -134,7 +129,7 @@ class Interface:
                     self.has_takeoff = True if "takeoff" in actions else False
 
                 # dragging blocks
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and self.current_block is None:
                     for block in self.blocks:
                         if block.surface_rectangle.collidepoint(event.pos):
 
@@ -163,20 +158,11 @@ class Interface:
                         if block.surface_rectangle.collidepoint(event.pos):
                             block.dragging = True
 
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    print("MOUSE BUTTON UP")
+                elif event.type == pygame.MOUSEBUTTONDOWN and self.current_block is not None:
                     if self.current_block:
                         # Makes sure that the block gets placed on the program side (right)
 
                         if event.pos[0] >= self.COMMAND_SIZE[0]+self.current_block.width//2:
-
-                            # Moving this operation to draw
-                            """print("Moving to ", self.next_position)
-                            self.next_position[1] -= self.std_block_size[1]
-
-                            if self.next_position[1] == -self.std_block_size[1]:
-                                self.next_position[0] += self.std_block_size[0]
-                                self.next_position[1] = self.block_bottom"""
 
                             self.current_block.x = self.COMMAND_SIZE[0]
                             self.current_block.y = self.block_bottom
@@ -205,8 +191,6 @@ class Interface:
 
                     print(f"Number of placed blocks: {len(self.used_blocks)}")
 
-
-
                 elif event.type == pygame.MOUSEMOTION:
                     for block in self.used_blocks:
                         if block.dragging:
@@ -214,7 +198,6 @@ class Interface:
                             block.x = mouse_x - block.width // 2
                             block.y = mouse_y - block.height // 2
                             block.surface_rectangle.topleft = (block.x, block.y)
-                            # print(block.x, block.y)
 
                     if self.current_block:
                         mouse_x, mouse_y = event.pos
@@ -330,12 +313,10 @@ class Block:
         """
         self.x = x
         self.y = y
-        self.width, self.height = 100, 100
+        self.width, self.height = 150, 150
         self.action = action
         self.active = True
-        self.dragging = False
         self.id = id
-        self.scrolling = False
         self.icon = icon
 
         self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)  # Enables transparency
