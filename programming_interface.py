@@ -134,7 +134,7 @@ class Interface:
                     self.has_takeoff = True if "takeoff" in actions else False
 
                 # dragging blocks
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and self.current_block is None:
                     for block in self.blocks:
                         if block.surface_rectangle.collidepoint(event.pos):
 
@@ -163,20 +163,11 @@ class Interface:
                         if block.surface_rectangle.collidepoint(event.pos):
                             block.dragging = True
 
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    print("MOUSE BUTTON UP")
+                elif event.type == pygame.MOUSEBUTTONDOWN and self.current_block is not None:
                     if self.current_block:
                         # Makes sure that the block gets placed on the program side (right)
 
                         if event.pos[0] >= self.COMMAND_SIZE[0]+self.current_block.width//2:
-
-                            # Moving this operation to draw
-                            """print("Moving to ", self.next_position)
-                            self.next_position[1] -= self.std_block_size[1]
-
-                            if self.next_position[1] == -self.std_block_size[1]:
-                                self.next_position[0] += self.std_block_size[0]
-                                self.next_position[1] = self.block_bottom"""
 
                             self.current_block.x = self.COMMAND_SIZE[0]
                             self.current_block.y = self.block_bottom
