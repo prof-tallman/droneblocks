@@ -157,30 +157,27 @@ class Interface:
                             # NOTE: Creates a copy and adds it to the in use blocks
                             copy = block.copy()
                             self.current_block = copy
-
+                    
                     for block in self.used_blocks:
-                        # print((block.x, block.y), event.pos)
                         if block.surface_rectangle.collidepoint(event.pos):
-                            block.dragging = True
+                            self.current_block = block
+                            self.current_block.dragging = True
 
                 elif event.type == pygame.MOUSEBUTTONDOWN and self.current_block is not None:
-                    if self.current_block:
-                        # Makes sure that the block gets placed on the program side (right)
+                    # Makes sure that the block gets placed on the program side (right)
+                    if event.pos[0] >= self.COMMAND_SIZE[0]+self.current_block.width//2:
 
-                        if event.pos[0] >= self.COMMAND_SIZE[0]+self.current_block.width//2:
+                        self.current_block.x = self.COMMAND_SIZE[0]
+                        self.current_block.y = self.block_bottom
+                        
+                        self.used_blocks.append(self.current_block.copy(drag=False, id=len(self.used_blocks)))
 
-                            self.current_block.x = self.COMMAND_SIZE[0]
-                            self.current_block.y = self.block_bottom
-                            
-                            self.used_blocks.append(self.current_block.copy(drag=False, id=len(self.used_blocks)))
+                        self.current_block.dragging = False
+                        self.current_block = None
 
-                            self.current_block.dragging = False
-                            self.current_block = None
-
-                        else:
-                            self.current_block.dragging = False 
-                            self.current_block = None
-
+                    else:
+                        self.current_block.dragging = False 
+                        self.current_block = None
 
                     # Events for already placed blocks
                     for block in self.used_blocks:
@@ -191,11 +188,10 @@ class Interface:
                                     subset_block.id -=1
 
                                 del self.used_blocks[id]
-                                
+
                             block.dragging = False
 
                     print(f"Number of placed blocks: {len(self.used_blocks)}")
-
 
 
                 elif event.type == pygame.MOUSEMOTION:
