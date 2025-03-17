@@ -155,7 +155,7 @@ class Interface:
 
                     for block in self.used_blocks:
                         if block.surface_rectangle.collidepoint(event.pos):
-                            self.current_block = True
+                            self.current_block = block
                             self.current_block.dragging = True
 
                 elif event.type == pygame.MOUSEBUTTONDOWN and self.current_block is not None:
