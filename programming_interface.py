@@ -43,17 +43,17 @@ class Interface:
 
         # dictionary of icons for each block paired with their action name and relative path to icon folder
         self.icons = {
-            "rotate_left": pygame.image.load(os.path.join(self.icons_path, "rotate_left.png")),
-            "rotate_right": pygame.image.load(os.path.join(self.icons_path, "rotate_right.png")),
-            "fly_forward": pygame.image.load(os.path.join(self.icons_path, "fly_forward.png")),
-            "fly_backward": pygame.image.load(os.path.join(self.icons_path, "fly_backward.png")),
-            "fly_left": pygame.image.load(os.path.join(self.icons_path, "fly_left.png")),
-            "fly_right": pygame.image.load(os.path.join(self.icons_path, "fly_right.png")),
-            "fly_up": pygame.image.load(os.path.join(self.icons_path, "fly_up.png")),
-            "fly_down": pygame.image.load(os.path.join(self.icons_path, "fly_down.png")),
-            "hover": pygame.image.load(os.path.join(self.icons_path, "hover.png")),
-            "takeoff": pygame.image.load(os.path.join(self.icons_path, "takeoff.png")),
-            "land": pygame.image.load(os.path.join(self.icons_path, "land.png")),
+            "rotate_left": pygame.image.load(os.path.join(self.icons_path, "rotate_left_red.png")),
+            "rotate_right": pygame.image.load(os.path.join(self.icons_path, "rotate_right_red.png")),
+            "fly_forward": pygame.image.load(os.path.join(self.icons_path, "fly_forward_red.png")),
+            "fly_backward": pygame.image.load(os.path.join(self.icons_path, "fly_backward_red.png")),
+            "fly_left": pygame.image.load(os.path.join(self.icons_path, "fly_left_red.png")),
+            "fly_right": pygame.image.load(os.path.join(self.icons_path, "fly_right_red.png")),
+            "fly_up": pygame.image.load(os.path.join(self.icons_path, "fly_up_red.png")),
+            "fly_down": pygame.image.load(os.path.join(self.icons_path, "fly_down_red.png")),
+            "hover": pygame.image.load(os.path.join(self.icons_path, "hover_red.png")),
+            "takeoff": pygame.image.load(os.path.join(self.icons_path, "takeoff_red.png")),
+            "land": pygame.image.load(os.path.join(self.icons_path, "land_red.png")),
         }
 
 
@@ -72,21 +72,21 @@ class Interface:
             pygame.draw.line(self.command_surface, color, (0, y), (self.COMMAND_SIZE[0], y))
 
         # Run Button initialization
-        self.run_button = Button(self.SIZE[0] // 2 + 150, self.SIZE[1] - 120, 150, 50, "Execute", (100, 200, 100), (150, 255, 150))
+        self.run_button = Button(self.SIZE[0] // 2 + 250, self.SIZE[1] - 120, 180, 80, "Execute", (100, 200, 100), (150, 255, 150))
 
  
         self.blocks = [
-            Block(25, 200, 'rotate_left', icon=self.icons["rotate_left"]),
-            Block(150, 200, 'fly_forward', icon=self.icons["fly_forward"]),
-            Block(275, 200, 'rotate_right', icon=self.icons["rotate_right"]),
-            Block(25, 325, 'fly_left', icon=self.icons["fly_left"]),
-            Block(150, 325, 'fly_backward', icon=self.icons["fly_backward"]),
-            Block(275, 325, 'fly_right', icon=self.icons["fly_right"]),
-            Block(25, 450, 'fly_up', icon=self.icons["fly_up"]),
-            Block(150, 450, 'hover', icon=self.icons["hover"]),
-            Block(275, 450, 'fly_down', icon=self.icons["fly_down"]),
-            Block(87.5, 575, 'takeoff', icon=self.icons["takeoff"]),
-            Block(212.5, 575, 'land', icon=self.icons["land"])
+            Block(40, 40, 'rotate_left', icon=self.icons["rotate_left"]),
+            Block(200, 40, 'fly_forward', icon=self.icons["fly_forward"]),
+            Block(360, 40, 'rotate_right', icon=self.icons["rotate_right"]),
+            Block(40, 200, 'fly_left', icon=self.icons["fly_left"]),
+            Block(200, 200, 'fly_backward', icon=self.icons["fly_backward"]),
+            Block(360, 200, 'fly_right', icon=self.icons["fly_right"]),
+            Block(40, 360, 'fly_up', icon=self.icons["fly_up"]),
+            Block(200, 360, 'hover', icon=self.icons["hover"]),
+            Block(360, 360, 'fly_down', icon=self.icons["fly_down"]),
+            Block(120, 520, 'takeoff', icon=self.icons["takeoff"]),
+            Block(280, 520, 'land', icon=self.icons["land"])
         ]
 
         # Blocks that are currently on the programming side
@@ -95,7 +95,7 @@ class Interface:
         self.has_land = False
         self.has_takeoff = False
 
-        self.std_block_size = (100, 100)
+        self.std_block_size = (120, 120)
 
         # The y axis coordiante of the block when it's at the bottom
         self.block_bottom = self.SIZE[1]-self.std_block_size[1]
@@ -321,7 +321,7 @@ class Block:
         """
         self.x = x
         self.y = y
-        self.width, self.height = 100, 100
+        self.width, self.height = 120, 120
         self.action = action
         self.active = True
         self.dragging = False
