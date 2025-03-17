@@ -80,8 +80,8 @@ class Interface:
             Block(100, 190, 'fly_backward', icon=self.icons["fly_backward"]),
             Block(100, 360, 'land', icon=self.icons["land"]),
             Block(100, 530, 'takeoff', icon=self.icons["takeoff"]),
-            Block(300, 190, 'fly_up', icon=self.icons["fly_up"]),
-            Block(300, 360, 'fly_down', icon=self.icons["fly_down"]),
+            # Block(300, 190, 'fly_up', icon=self.icons["fly_up"]),
+            # Block(300, 360, 'fly_down', icon=self.icons["fly_down"]),
         ]
 
         # Blocks that are currently on the programming side
